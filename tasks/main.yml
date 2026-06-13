@@ -1,0 +1,25 @@
+---
+# tasks file for nerdygriffin.proxmox_repositories
+
+- name: Check for the Proxmox VE management CLI
+  ansible.builtin.stat:
+    path: /usr/bin/pveversion
+  register: proxmox_repositories__pveversion
+
+- name: Assert this is a Proxmox VE (Debian) host
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Debian'
+      - proxmox_repositories__pveversion.stat.exists
+    fail_msg: >-
+      nerdygriffin.proxmox_repositories targets Proxmox VE hosts
+      (Debian + /usr/bin/pveversion). Detected
+      {{ ansible_facts['distribution'] | default('unknown') }}.
+    quiet: true
+
+- name: Configure Proxmox apt repositories
+  ansible.builtin.import_tasks: repositories.yml
+
+- name: Remove the "no valid subscription" nag
+  ansible.builtin.import_tasks: nag.yml
+  when: proxmox_repositories_remove_subscription_nag | bool

@@ -1,0 +1,17 @@
+---
+# Manage the Proxmox VE and Ceph apt repositories in deb822 format.
+
+- name: Configure Proxmox deb822 repositories
+  ansible.builtin.deb822_repository:
+    name: "{{ item.name }}"
+    types: [deb]
+    uris: "{{ item.uris }}"
+    suites: "{{ proxmox_repositories_release }}"
+    components: "{{ item.components }}"
+    signed_by: "{{ proxmox_repositories_keyring }}"
+    enabled: "{{ item.enabled | bool }}"
+    state: present
+  loop: "{{ proxmox_repositories__pve + proxmox_repositories__ceph }}"
+  loop_control:
+    label: "{{ item.name }} (enabled={{ item.enabled | bool }})"
+  notify: Update apt cache

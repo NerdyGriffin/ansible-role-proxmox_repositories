@@ -1,0 +1,30 @@
+---
+# Remove the Proxmox VE "no valid subscription" web-UI nag, and keep it removed
+# across proxmox-widget-toolkit upgrades via an APT post-invoke hook.
+
+- name: Deploy the no-subscription nag patch script
+  ansible.builtin.copy:
+    src: pve-no-subscription-nag.sh
+    dest: "{{ proxmox_repositories_nag_script_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install APT hook to re-apply the nag patch after upgrades
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/86-pve-no-subscription-nag
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      // Managed by Ansible role nerdygriffin.proxmox_repositories.
+      // Re-apply the no-subscription nag patch after package operations
+      // (proxmox-widget-toolkit upgrades restore the stock proxmoxlib.js).
+      DPkg::Post-Invoke { "test -x {{ proxmox_repositories_nag_script_path }} && {{ proxmox_repositories_nag_script_path }} >/dev/null 2>&1 || true"; };
+
+- name: Apply the no-subscription nag patch now
+  ansible.builtin.command: "{{ proxmox_repositories_nag_script_path }}"
+  register: proxmox_repositories__nag_run
+  # NB: "UNCHANGED" contains "CHANGED" — anchor at the start of the line.
+  changed_when: proxmox_repositories__nag_run.stdout.startswith('CHANGED')
+  when: not ansible_check_mode

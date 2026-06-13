@@ -1,0 +1,41 @@
+---
+# defaults file for nerdygriffin.proxmox_repositories
+
+# Debian suite for the repositories. Proxmox VE 9 = Debian 13 "trixie",
+# PVE 8 = "bookworm". Defaults to the host's own release.
+proxmox_repositories_release: "{{ ansible_facts['distribution_release'] | default('trixie') }}"
+
+# Keyring shipped by the proxmox-archive-keyring package. Used for every
+# Proxmox/Ceph repository (Signed-By).
+proxmox_repositories_keyring: /usr/share/keyrings/proxmox-archive-keyring.gpg
+
+# --- Proxmox VE repository channels -----------------------------------------
+# Enterprise requires a paid subscription key; no-subscription is the free
+# channel (not recommended for production by Proxmox); test ships unvalidated
+# packages. Exactly one of enterprise/no-subscription is normally enabled.
+proxmox_repositories_pve_enterprise_enabled: false
+proxmox_repositories_pve_no_subscription_enabled: true
+proxmox_repositories_pve_test_enabled: false
+
+# --- Ceph repository channels ------------------------------------------------
+# Disabled by default — only relevant on hyper-converged Ceph clusters. The
+# release selects the Ceph version repo. PVE 9.1 ships "squid" (19.2); newer
+# point releases moved to "tentacle" (20.2). Override per cluster.
+proxmox_repositories_ceph_release: squid
+proxmox_repositories_ceph_no_subscription_enabled: false
+proxmox_repositories_ceph_enterprise_enabled: false
+proxmox_repositories_ceph_test_enabled: false
+
+# Run `apt update` (via handler) after any repository change.
+proxmox_repositories_update_cache: true
+
+# --- "No valid subscription" nag removal ------------------------------------
+# Patches the web-UI proxmoxlib.js so the login nag dialog is suppressed, and
+# installs an APT hook so the patch is re-applied after each
+# proxmox-widget-toolkit upgrade. Reversible (a *.orig backup is kept).
+proxmox_repositories_remove_subscription_nag: true
+proxmox_repositories_nag_script_path: /usr/local/bin/pve-no-subscription-nag.sh
+
+# Experimental: the PVE 9 Yew/WASM mobile UI nag is not patched by this role
+# (no reliable static hook). Left as a documented no-op toggle for the future.
+proxmox_repositories_remove_subscription_nag_mobile: false

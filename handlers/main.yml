@@ -1,0 +1,7 @@
+---
+# handlers file for nerdygriffin.proxmox_repositories
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+  when: proxmox_repositories_update_cache | bool

@@ -1,0 +1,25 @@
+---
+galaxy_info:
+  author: nerdygriffin
+  description: >-
+    Manage Proxmox VE and Ceph apt repositories (deb822) — enterprise,
+    no-subscription, and test channels — and optionally remove the
+    "no valid subscription" web-UI nag (persisted across upgrades).
+  license: MIT
+  # deb822_repository was added in ansible-core 2.15.
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+        - trixie
+  galaxy_tags:
+    - proxmox
+    - pve
+    - ceph
+    - apt
+    - repository
+    - subscription
+    - virtualization
+
+dependencies: []
