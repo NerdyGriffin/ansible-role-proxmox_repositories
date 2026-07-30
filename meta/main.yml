@@ -1,5 +1,7 @@
 ---
 galaxy_info:
+  role_name: proxmox_repositories
+  namespace: nerdygriffin
   author: nerdygriffin
   description: >-
     Manage Proxmox VE and Ceph apt repositories (deb822) — enterprise,
